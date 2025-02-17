@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radar Chart Comparison</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #10b981;
+      --background: #f9fafb; /* светъл фон */
+      --surface: #ffffff; /* бяла повърхност */
+      --text: #1f2937; /* тъмен текст за добро четене */
+      --border: #e5e7eb;
+      --accent: #8b5cf6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .container {
+      background: var(--surface);
+      padding: 2.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+      max-width: 1200px;
+      width: 100%;
+      transition: transform 0.3s ease;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+      color: #6366f1;
+    }
+    h2{
+        font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #6366f1;
+    }
+    .header p {
+      font-size: 1.3rem;
+      color: #0a8d61;
+      font-weight: 700;
+    }
+
+    .grid-header {
+      display: grid;
+      grid-template-columns: 6fr 1fr 1fr 0.4fr;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      font-weight: 500;
+    }
+    .grid-header span {
+      text-align: center;
+    }
+
+    .input-group {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 0.5fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: center;
+      transition: background 0.3s ease;
+      padding: 0.5rem;
+      border-radius: 0.75rem;
+      background: rgba(0, 0, 0, 0.02);
+    }
+    .input-group:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    input {
+      background: var(--background);
+      border: 2px solid var(--border);
+      color: var(--text);
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      font-size: 1.4rem;
+      transition: all 0.3s ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .labelInput{
+        font-size: 1.7rem;
+        width: 45.5rem;
+    }
+    .valueInput1{
+        margin-left: 25%;
+        font-size: 1.7rem;
+        width: 7rem;
+    }
+    .valueInput2{
+        margin-left: 25%;
+        font-size: 1.7rem;
+        width: 7rem;
+    }
+    .button-group {
+      display: flex;
+      gap: 2rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #addField{
+        font-size: 1.8rem;
+    }
+    #drawChart{
+        font-size: 1.8rem;
+    }
+
+    
+
+    button {
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #addField {
+      background: linear-gradient(45deg, var(--primary), var(--accent));
+      color: white;
+    }
+    #drawChart {
+      background: linear-gradient(45deg, var(--secondary), #059669);
+      color: white;
+    }
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      margin-left: 0.9rem;
+      transition: transform 0.2s ease;
+    }
+    .delete-btn:hover {
+      transform: scale(1.3);
+    }
+    .delete-btn svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .chart-container {
+      background: var(--background);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-top: 0rem;
+      position: relative;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #059669;
+
+    }
+
+    #radarChart{
+        height: 0;
+        padding: 0;
+        margin: 0;
+        display: none;
+
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 1.5rem;
+      }
+      
+      .grid-header,
+      .input-group {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    .footer {
+        text-align: center;
+        background: #f8f9fa; /* Светъл фон */
+        padding: 15px;
+        font-size: 16px;
+        color: #151515; /* Тъмен текст */
+        border-top: 2px solid #ddd; /* Лека горна граница */
+        position: relative;
+        bottom: 0;
+        margin-top: 50px;
+        width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Анализ на учебните резултати: </h1>
+      <h2>Сравнение на индивидуалното представяне с усреднените резултати на класа/випуска</h2>
+      <br>
+      <p>Въведете своите оценки и средния успех на класа/випуска, за да генерирате радиална диаграма. Добавяйте или премахвайте учебни предмети и коригирайте стойностите за персонализиран анализ.</p>
+    </div>
+
+    <div class="grid-header">
+      <span>Учебен предмет</span>
+      <span>Оценка ученик</span>
+      <span>Среден успех</span>
+      <span></span>
+    </div>
+
+    <!-- Контейнерът за групите ще се попълва динамично -->
+    <div id="inputFields"></div>
+
+    <div class="button-group">
+      <button id="addField">
+        <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14m-7-7h14"/>
+        </svg>
+        Добавете учебен предмет
+      </button>
+      <button id="drawChart">
+        <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3v18h18M18 7L15 12l3 5M8 7l3 5-3 5"/>
+        </svg>
+        Генерирайте диаграма
+      </button>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="radarChart"></canvas>
+      Радио диаграма
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Изработено от <strong>инж. Димитър Желев</strong>,  
+        учител по информатика и информационни технологии в  
+        <strong>СУ "Йордан Йовков" - Сливен</strong>.
+    </p>
+    </footer>
+
+  <script>
+    // Функция за създаване на нов ред (input-group)
+    function createFieldRow(label = '', value1 = '', value2 = '') {
+      const group = document.createElement('div');
+      group.className = 'input-group';
+      
+      group.innerHTML = `
+        <input type="text" class="labelInput" value="${label}" placeholder="Учебен предмет" />
+        <input type="number" class="valueInput1" value="${value1}" placeholder="2-6" />
+        <input type="number" class="valueInput2" value="${value2}" placeholder="2-6" />
+        <button class="delete-btn" title="Изтрий ред">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </button>
+      `;
+      group.querySelector('.delete-btn').addEventListener('click', () => group.remove());
+      return group;
+    }
+
+    // Добавяне на няколко учебни предмета по подразбиране
+	function addDefaultSubjects() {
+  		const defaults = [
+    		{ label: "Български език и литература", value1: "5", value2: "4.12" },
+    		{ label: "Английски език", value1: "6", value2: "5.35" },
+    		{ label: "Математика", value1: "4", value2: "3.89" },
+   		   	{ label: "КМИТ", value1: "5", value2: "5.12" },
+			{ label: "История и цивилизации", value1: "4", value2: "5.55" },
+			{ label: "География и икономика", value1: "4", value2: "4.45" },
+			{ label: "Биология и здравно образование", value1: "3", value2: "4.23" },
+			{ label: "Физика и астрономия", value1: "5", value2: "4.75" },
+			{ label: "Химия и опазване на околната среда", value1: "4", value2: "4.45" },
+ 			{ label: "Музика", value1: "6", value2: "5.77" },
+			{ label: "Изобразително изкуство", value1: "6", value2: "5.83" },
+			{ label: " Технологии и предприемачество", value1: "6", value2: "5.67" },
+			{ label: "Физическо възпитание и спорт", value1: "6", value2: "5.84" }
+  ];
+  
+  const container = document.getElementById('inputFields');
+  defaults.forEach(item => {
+    container.appendChild(createFieldRow(item.label, item.value1, item.value2));
+  });
+}
+
+
+    // Добавяне на дефолтните редове веднага след зареждане
+    document.addEventListener('DOMContentLoaded', addDefaultSubjects);
+
+    // Добавяне на нов ред при клик върху бутона "Добави ред"
+    document.getElementById('addField').addEventListener('click', () => {
+      document.getElementById('inputFields').appendChild(createFieldRow());
+    });
+
+    let chartInstance = null;
+
+    document.getElementById('drawChart').addEventListener('click', () => {
+      const labels = [];
+      const studentData = [];
+      const classData = [];
+
+      document.querySelectorAll('.input-group').forEach(row => {
+        labels.push(row.querySelector('.labelInput').value || 'Предмет');
+        studentData.push(parseFloat(row.querySelector('.valueInput1').value) || 0);
+        classData.push(parseFloat(row.querySelector('.valueInput2').value) || 0);
+      });
+
+      if (chartInstance) chartInstance.destroy();
+
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Оценка на ученик',
+            data: studentData,
+            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+            borderColor: '#6366f1',
+            pointBackgroundColor: '#6366f1'
+          }, {
+            label: 'Среден успех за класа',
+            data: classData,
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+            borderColor: '#10b981',
+            pointBackgroundColor: '#10b981'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            r: {
+              beginAtZero: true,
+              grid: { color: '#e5e7eb' },
+              pointLabels: { color: '#1f2937',
+              font: {size: 18},
+              padding: 5
+            },
+              ticks: { 
+                color: '#6b7280',
+                backdropColor: 'transparent'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { 
+                font: {
+                    size: 22  // Задава размера на шрифта за легендата (например 20px)
+                },
+                color: '#000' }
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
