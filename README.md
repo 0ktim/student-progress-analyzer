@@ -29,6 +29,8 @@
 
 ## 📷 Примерна визуализация:
 
+<img src="https://drive.google.com/u/0/drive-viewer/AKGpihaVx5YTCC2T_g1u3D_Z0ER3o7Z0Rm6WPZRHgxbHj1A-KB2VoM55Uaz7-HBrfyI4EzKk7TnMDK6Y3MqHNJ8kvFYruwOJVhFxtw=s1600-rw-v1" >
+
 
 ---
 
