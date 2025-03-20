@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radar Chart Comparison</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #10b981;
+      --background: #f9fafb; /* светъл фон */
+      --surface: #ffffff; /* бяла повърхност */
+      --text: #1f2937; /* тъмен текст за добро четене */
+      --border: #e5e7eb;
+      --accent: #8b5cf6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .container {
+      background: var(--surface);
+      padding: 2.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+      max-width: 1200px;
+      width: 100%;
+      transition: transform 0.3s ease;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+      color: #6366f1;
+    }
+    h2{
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #6366f1;
+    }
+    
+    .header p {
+      font-size: 1.3rem;
+      color: #0a8d61;
+      font-weight: 700;
+    }
+
+    .container-grade{
+    align-items:start;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    }
+
+    label { 
+      font-size: 1.55rem;
+      font-weight: bold; 
+    }
+
+    .input-grade {   
+      font-size: 1.55rem;
+      width: 5.5rem; 
+      color: #000000;
+      margin: 0 0.5rem; 
+
+    }
+
+    button {
+      font-size: 1.55rem; 
+      background: linear-gradient(45deg, var(--primary), var(--accent));
+      color: white; 
+      font-weight: bold;
+      margin: 0 0.5rem; 
+    }
+
+    #result { 
+      font-size: 1.7rem;
+      font-weight: bold;
+      margin: 0 0.5rem; 
+    }
+
+    .grid-header {
+      display: grid;
+      grid-template-columns: 4fr 1fr 1fr 1fr 0.4fr;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 1.7rem;
+      font-weight: 900;
+    }
+    .grid-header span {
+      text-align: center;
+    }
+
+    .input-group {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: center;
+      transition: background 0.3s ease;
+      padding: 0.5rem;
+      border-radius: 0.75rem;
+      background: rgba(0, 0, 0, 0.02);
+    }
+    .input-group:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    input {
+      background: var(--background);
+      border: 2px solid var(--border);
+      color: var(--text);
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      font-size: 1.4rem;
+      transition: all 0.3s ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .labelInput{
+        font-size: 1.7rem;
+        width: 35rem;
+    }
+    .valueInput1{
+        margin-left: 15%;
+        font-size: 1.7rem;
+        width: 7rem;
+    }
+    .valueInput2{
+        margin-left: 15%;
+        font-size: 1.7rem;
+        width: 7rem;
+    }
+    .valueInput3{
+        margin-left: 15%;
+        font-size: 1.7rem;
+        width: 7rem;
+    }
+
+
+    .error-message {
+        position: absolute;
+        font-size: 3rem;
+        color: #ff0000;
+        margin-top: 5.5rem;
+    }
+
+
+    .button-group {
+      display: flex;
+      gap: 2rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #addField{
+        font-size: 1.8rem;
+    }
+    #drawChart{
+        font-size: 1.8rem;
+    }
+
+    button {
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #addField {
+      background: linear-gradient(45deg, var(--primary), var(--accent));
+      color: white;
+    }
+    #drawChart {
+      background: linear-gradient(45deg, var(--secondary), #059669);
+      color: white;
+    }
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      margin-left: 0.9rem;
+      transition: transform 0.2s ease;
+    }
+    .delete-btn:hover {
+      transform: scale(1.3);
+    }
+    .delete-btn svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .chart-container {
+      background: var(--background);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-top: 0rem;
+      position: relative;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #059669;
+
+    }
+
+    #radarChart{
+        height: 0;
+        padding: 0;
+        margin: 0;
+        display: none;
+
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 1.5rem;
+      }
+      
+      .grid-header,
+      .input-group {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    .footer {
+        text-align: center;
+        background: #f8f9fa; /* Светъл фон */
+        padding: 15px;
+        font-size: 16px;
+        color: #151515; /* Тъмен текст */
+        border-top: 2px solid #ddd; /* Лека горна граница */
+        position: relative;
+        bottom: 0;
+        margin-top: 50px;
+        width: 100%;
+    }
+
+
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Анализ на учебните резултати </h1>
+      <br>
+      <img src="https://lh3.google.com/u/0/d/1u7BnyrwW_DN_uREeiZRvcBqS7H-zLJkr=w2560-h1282-iv1" alt="" style="width: 100%;       border-radius: 1rem;">
+      <br>
+      <br>
+      <h2 style="text-align: center;">Калкулатор за преобразуване на точки в проценти</h2>
+      <br>
+      <p>Въведете броя точки, които ученикът е получил, задайте максималния възможен брой точки и натиснете бутона „Изчисли“, за да преобразувате резултата в проценти.</p>
+    </div>
+    <div class="container-grade">
+        <label for="studentPoints">Точки на ученика:</label>
+        <input type="number" class="input-grade calculator-input" id="studentPoints" placeholder="0">
+        <label for="maxPoints">Максимални точки:</label>
+        <input type="number" class="input-grade calculator-input" id="maxPoints" placeholder="0">
+        <button onclick="calculateGrade()">Изчисли</button>
+        <label>Процент:</label>
+        <label id="result"> 0</label>
+        <label>%</label>
+    </div>
+    <br>
+    <div class="header">
+        <h2>Сравнение на индивидуалното представяне по отделни критерии </h2>
+        <br>
+        <p>Анализирайте напредъка на ученика, като въведете неговия процент усвоени знания по различни критерии за входно, междинно и изходно ниво, след което генерирайте диаграма за визуално сравнение на резултатите.</p>
+    </div>
+
+    <div class="grid-header">
+      <span>Критерии</span>
+      <span>Входно ниво</span>
+      <span>Междинно ниво</span>
+      <span>Изходно ниво</span>
+      <span></span>
+    </div>
+
+    <!-- Контейнерът за групите ще се попълва динамично -->
+    <div id="inputFields"></div>
+
+    <div class="button-group">
+      <button id="addField">
+        <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14m-7-7h14"/>
+        </svg>
+        Добавете критерий
+      </button>
+      <button id="drawChart">
+        <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3v18h18M18 7L15 12l3 5M8 7l3 5-3 5"/>
+        </svg>
+        Генерирайте диаграма
+      </button>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="radarChart"></canvas>
+      Радиална диаграма
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Изработено от <strong>инж. Димитър Желев</strong>,  
+        учител по информатика и информационни технологии в  
+        <strong>СУ "Йордан Йовков" - Сливен</strong>.
+    </p>
+    </footer>
+
+<script>
+    function calculateGrade() {
+        let studentPoints = parseFloat(document.getElementById('studentPoints').value);
+        let maxPoints = parseFloat(document.getElementById('maxPoints').value);
+                
+        if (isNaN(studentPoints) || isNaN(maxPoints) || maxPoints <= 0) {
+            document.getElementById('result').innerText = " ";
+            return;
+        }else if(studentPoints > maxPoints) {
+            document.getElementById('result').innerText = " ";
+            alert(`Точки на ученика (${studentPoints}) не може да са повече от максималните точки (${maxPoints})!`);
+            return;
+        }
+                
+        let grade = 100 * (studentPoints / maxPoints);
+        document.getElementById('result').innerText = grade.toFixed(0);
+    }
+    
+    function validateInput(input) {
+        if(!input.classList.contains('valueInput1') && 
+            !input.classList.contains('valueInput2') && 
+            !input.classList.contains('valueInput3')) return true;
+    
+        const value = input.value.trim();
+        const errorSpan = input.nextElementSibling;
+            
+        // Allow empty but don't validate
+        if(value === '') {
+            errorSpan.textContent = '';
+            input.style.borderColor = '#e5e7eb';
+            return true;
+        }
+            
+        const numericValue = parseFloat(value);
+        if(isNaN(numericValue) || numericValue < 0 || numericValue > 100) {
+            errorSpan.textContent = 'Стойността трябва да е между 0 и 100!';
+            input.style.borderColor = '#ff0000';
+            return false;
+        }
+            
+        errorSpan.textContent = '';
+        input.style.borderColor = '#e5e7eb';
+        return true;
+    }
+    
+    function createFieldRow(label = '', value1 = '', value2 = '', value3 = '') {
+        const group = document.createElement('div');
+        group.className = 'input-group';
+            
+        group.innerHTML = `
+            <input type="text" class="labelInput" value="${label}" placeholder="Критерий" />
+            <input type="number" class="valueInput1" value="${value1}" placeholder="2-6" min="2" max="6" step="0.1" />
+            <span class="error-message" style="color: #ef4444; font-size: 0.9rem;"></span>
+            <input type="number" class="valueInput2" value="${value2}" placeholder="2-6" min="2" max="6" step="0.1" />
+            <span class="error-message" style="color: #ef4444; font-size: 0.9rem;"></span>
+            <input type="number" class="valueInput3" value="${value3}" placeholder="2-6" min="2" max="6" step="0.1" />
+            <span class="error-message" style="color: #ef4444; font-size: 0.9rem;"></span>
+            <button class="delete-btn" title="Изтрий ред">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </button>
+        `;
+    
+        const inputs = group.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+            input.addEventListener('input', () => validateInput(input));
+        });
+    
+        group.querySelector('.delete-btn').addEventListener('click', () => group.remove());
+        return group;
+    }
+    
+    function addDefaultSubjects() {
+        const defaults = [
+            { label: "Граматика и правопис", value1: "46", value2: "49", value3: "52" },
+            { label: "Съставяне на текст", value1: "42", value2: "51", value3: "48" },
+            { label: "Литературни знания", value1: "68", value2: "64", value3: "51" },
+            { label: "Четене с разбиране", value1: "73", value2: "68", value3: "77" },
+            { label: "Творчество и езикова култура", value1: "62", value2: "58", value3: "65" }
+        ];
+            
+        const container = document.getElementById('inputFields');
+        defaults.forEach(item => {
+            container.appendChild(createFieldRow(item.label, item.value1, item.value2, item.value3));
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', addDefaultSubjects);
+    
+    document.getElementById('addField').addEventListener('click', () => {
+        document.getElementById('inputFields').appendChild(createFieldRow());
+    });
+    
+    let chartInstance = null;
+    
+    document.getElementById('drawChart').addEventListener('click', () => {
+        let hasErrors = false;
+            
+        document.querySelectorAll('.valueInput1, .valueInput2, .valueInput3').forEach(input => {
+            if(!validateInput(input)) hasErrors = true;
+        });
+    
+        if(hasErrors) {
+            alert('Моля, коригирайте невалидните стойности преди да генерирате диаграмата!');
+            return;
+        }
+    
+        const allData = {
+            labels: [],
+            v1: [],
+            v2: [],
+            v3: []
+        };
+    
+        // Събиране на всички данни
+        document.querySelectorAll('.input-group').forEach(row => {
+            const label = row.querySelector('.labelInput').value.trim();
+            if(label) {
+                allData.labels.push(label);
+                allData.v1.push(row.querySelector('.valueInput1').value.trim());
+                allData.v2.push(row.querySelector('.valueInput2').value.trim());
+                allData.v3.push(row.querySelector('.valueInput3').value.trim());
+            }
+        });
+    
+        // Валидация на колони
+        const isValidColumn = (data) => {
+            return data.length === allData.labels.length && 
+                   data.every(item => {
+                       if(item === '') return false;
+                       const num = parseFloat(item);
+                       return !isNaN(num) && num >= 0 && num <= 100;
+                   });
+        };
+    
+        // Създаване на datasets
+        const datasets = [];
+        if(isValidColumn(allData.v1)) {
+            datasets.push({
+                label: 'Входно ниво',
+                data: allData.v1.map(Number),
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderColor: '#6366f1',
+                pointBackgroundColor: '#6366f1'
+            });
+        }
+        if(isValidColumn(allData.v2)) {
+            datasets.push({
+                label: 'Междинно ниво',
+                data: allData.v2.map(Number),
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderColor: '#10b981',
+                pointBackgroundColor: '#10b981'
+            });
+        }
+        if(isValidColumn(allData.v3)) {
+            datasets.push({
+                label: 'Изходно ниво',
+                data: allData.v3.map(Number),
+                backgroundColor: 'rgba(220, 15, 19, 0.1)',
+                borderColor: '#ff0901',
+                pointBackgroundColor: '#ff0901'
+            });
+        }
+    
+        if(datasets.length === 0) {
+            alert('Няма валидни данни за визуализация!');
+            return;
+        }
+    
+        if(chartInstance) chartInstance.destroy();
+    
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: allData.labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        beginAtZero: false,
+                        min: 0,
+                        max: 100,
+                        grid: { color: '#e5e7eb' },
+                        pointLabels: { 
+                            color: '#1f2937',
+                            font: { size: 18 },
+                            padding: 5
+                        },
+                        ticks: { 
+                            color: '#6b7280',
+                            backdropColor: 'transparent',
+                            callback: function(value) {
+                                return value >= 0 ? value : '';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { 
+                            font: { size: 22 },
+                            color: '#000' 
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
