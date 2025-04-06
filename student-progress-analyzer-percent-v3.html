@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radar Chart Comparison</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #6366f1;
+      --accent: #8b5cf6;
+      --secondary: #10b981;
+      --background: #f9fafb;
+      --surface: #ffffff; 
+      --text: #1f2937; 
+      --border: #e5e7eb;
+      --error: #ef4444;
+      --success: #0a8d61;
+      --border-radius: 0.75rem;
+      --transition: all 0.3s ease;
+      --btn-font-size: 1.2rem;
+      --base-font-size: 1.2rem;
+      --gradient-primary: linear-gradient(45deg, var(--primary), var(--accent));
+      --gradient-success: linear-gradient(45deg, var(--secondary), #059669);
+      --gradient-danger: linear-gradient(45deg, #ef4444, #b91c1c);
+      --gradient-info: linear-gradient(45deg, #8b5cf6, #6366f1);
+      --gradient-neutral: linear-gradient(45deg, #d1d5db, #e5e7eb);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+      display: grid;
+      place-items: center;
+    }
+    .container {
+      background: var(--surface);
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      transition: var(--transition);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+      color: #6366f1;
+    }
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #6366f1;
+    }
+    .header p {
+      font-size: 1.2rem;
+      color: #0a8d61;
+      font-weight: 700;
+
+    }
+    .container-grade {
+      align-items: start;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+    .container-grade label {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .input-grade {
+      font-size: 1.2rem;
+      width: 5.5rem;
+      color: #000000;
+      margin: 0 0.5rem;
+      border: 2px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.4rem 0.6rem;
+    }
+    #result {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 0 0.5rem;
+    }
+
+    .progress-container {
+      width: 100%;
+      background-color: #e0e0e0;  /* Фон на контейнера */
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-bar {
+      width: 0%;               /* Започва с празна лента */
+      height: 5px;            /* Височина на лентата */
+      background-color: #0f8e66; /* Цвят на запълването */
+      transition: width 1s ease; /* Плавна анимация при промяна */
+    }
+
+    button {
+      font-size: var(--btn-font-size);      
+      background: var(--gradient-primary);
+      color: white;
+      font-weight: bold;
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0.9;
+    }
+
+    button:hover {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+
+    #calculateButton{
+      padding: 0.6rem 0.6rem;
+
+    }
+
+    #addField {
+      font-size: var(--btn-font-size);
+      background: linear-gradient(45deg, var(--secondary), #059669);
+      color: white;
+    }
+    #drawChart {
+      font-size: var(--btn-font-size);
+      background: var(--gradient-primary);
+      color: white;
+    }
+    #clear {
+      font-size: var(--btn-font-size);
+      background: linear-gradient(45deg, #ef4444, #b91c1c);
+      color: white;
+    }
+
+    /* ===================== ДИНАМИЧЕН ХЕДЪР ===================== */
+    .grid-header {
+      display: grid;
+      grid-template-columns: 1.8fr repeat(var(--numCols), 1fr) 5rem;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 0.75rem;
+      font-size: var(--base-font-size);
+      font-weight: 700;
+    }
+ 
+    .grid-header span {
+      text-align: center;
+    }
+    .grid-header input[type="text"] {
+      font-size: var(--base-font-size);
+      font-weight: 700;
+      text-align: left;
+      border: 2px solid var(--border);
+      border-radius: 0.5rem;
+      background: var(--background);
+      color: #000;
+      padding: 0.4rem 0.6rem;
+      width: 100%;
+    }
+    .grid-header input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .column-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items:end;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .add-column-btn, .remove-column-btn {
+      background: none;
+      border-radius: 0.5rem;
+      font-size: var(--base-font-size);
+      width: 1.8rem;
+      height: 1.8rem;
+      line-height: 1.3rem;
+      text-align: center;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+    .add-column-btn {
+      border: 2px solid #10b981;
+      color: #10b981;
+    }
+    .remove-column-btn {
+      border: 2px solid #ef4444;
+      color: #ef4444;
+    }
+    .add-column-btn:hover {
+      background: #10b981;
+      transform: scale(1.15);
+      color: white;
+    }
+    .remove-column-btn:hover {
+      background: #ef4444;
+      transform: scale(1.15);
+      color: white;
+    }
+    .add-column-btn:disabled,
+    .remove-column-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #bebebe !important;
+      color: #303030 !important;
+      border-color: #bebebe !important;
+    }
+
+    /* ===================== РЕДОВЕ С КРИТЕРИИ ===================== */
+    .input-group {
+      display: grid;
+      grid-template-columns: 1.8fr repeat(var(--numCols), 1fr) 5rem;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.02);
+      transition: background 0.3s ease;
+      border-radius: 0.75rem;
+    }
+    .input-group:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+    .labelInput {
+      font-size: var(--base-font-size);
+      font-weight: 700;
+      width: 100%;
+      background: var(--background);
+      border: 2px solid var(--border);
+      color: var(--text);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+    }
+    .labelInput:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .valueInput {
+      font-size: var(--base-font-size);
+      width: 7rem;
+      background: var(--background);
+      border: 2px solid var(--border);
+      color: var(--text);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+    .valueInput:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      flex-direction: row-reverse;
+      transition: transform 0.2s ease;
+      margin: 0;
+    }
+    .delete-btn:hover {
+      transform: scale(1.4);
+    }
+    .delete-btn svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    /* ===================== ДИАГРАМА ===================== */
+    .chart-container {
+      display: none;
+      background: var(--background);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-top: 0rem;
+      position: relative;
+      text-align: center;
+      font-size: var(--base-font-size);
+      font-weight: 700;
+      color: #059669;
+      width: 100%;
+      max-width: 100%;
+      height: 90vh; /* Височина като процент от височината на екрана */
+    }
+    /* Задаваме явни размери за canvas-а */
+    #radarChart {
+      display: block !important; /* При показване на контейнера, показваме и платното */
+      width: 100% !important;
+      max-width: 1500px !important;
+      height: 100% !important;
+      margin: 0 auto;
+    }
+    #downloadChart{
+      font-size: var(--btn-font-size);
+      display: none;
+      float: right;
+      margin-top: 2rem;
+    }
+    #exportCSV{
+      background: linear-gradient(45deg, var(--secondary), #059669);
+      font-size: var(--btn-font-size);
+      display: none;
+      float: left;
+      margin-top: 2rem;
+    }
+    #exportAllCSV{
+      background: linear-gradient(45deg, var(--secondary), #059669);
+      font-size: var(--btn-font-size);
+      display: none;
+      float: left;
+      margin-top: 2rem;
+    }
+
+    /* Стилове за селектора на ученик */
+    .student-selector-container {
+      display: flex;
+      flex-direction: column; /* Подредете елементите вертикално */
+      align-items: center;    /* Центрирайте елементите по хоризонталата */
+      width: 100%;            /* Задайте ширина на 100% */
+      margin-top: 1rem;
+      position: relative; /* Важно за правилното позициониране */
+      margin-bottom: 1rem;
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 0.75rem;
+    }
+
+
+    .student-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+    }
+    
+    .student-selector label {
+      font-size: 1.3rem;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    
+    #studentSelector {
+      font-size: 1.3rem;
+      width: 100%;            /* Задайте ширина на 100% */
+      font-size: var(--btn-font-size); /* Използвайте променливата за шрифта */
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      border: 2px solid var(--border);
+      text-overflow: ellipsis;
+    }
+    #adminBtn{
+      background: linear-gradient(45deg, #8b5cf6, #6366f1);
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000; 
+      padding: 0rem;
+      align-items: center;
+      opacity: 0.2;
+    }
+    #adminBtn:hover{
+      opacity: 1;
+    }
+
+    /* За да ограничим размера на опциите в падащото меню */
+    #studentSelector option {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .button-container{
+      font-size: var(--btn-font-size);
+      display: flex;
+      gap: 2rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+      
+    }
+    #newStudentBtn, #renameStudentBtn, #deleteStudentBtn, #importDataBtn {
+      margin: 0;
+      white-space: nowrap;
+      font-size: var(--btn-font-size);
+    }
+    
+    #newStudentBtn {
+      background: linear-gradient(45deg, var(--secondary), #059669);
+    }
+    
+    #renameStudentBtn {
+      background: linear-gradient(45deg, #8b5cf6, #6366f1);
+    }
+    
+    #deleteStudentBtn {
+      background: linear-gradient(45deg, #ef4444, #b91c1c);
+    }
+    
+    #importDataBtn {
+      background: linear-gradient(45deg, var(--secondary), #059669);
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      margin-left: 0;
+    }
+    
+    #importDataBtn:hover {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+  
+    /* Добавяне на стилове за превключване между изгледи */
+    .view-toggle {
+      display: none;
+      margin: 1rem 0;
+      text-align: center;
+    }
+
+    .view-toggle button {
+      padding: 0.5rem 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 0.25rem;
+      cursor: pointer;
+    }
+
+    .view-toggle button.active {
+      background: var(--accent);
+    }
+    
+    @media (max-width: 768px) {
+      .student-selector-container {
+        flex-direction: column;
+      }
+      
+      .student-selector {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+      
+      #studentSelector {
+        width: 100%;
+      }
+      
+      #newStudentBtn, #renameStudentBtn, #deleteStudentBtn{
+        width: 100%;
+      }
+      
+      .view-toggle {
+        display: block;
+      }
+      
+      .table-view .grid-header,
+      .table-view .input-group {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      
+      .card-view .input-group {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+      }
+      
+      .card-view .labelInput {
+        font-size: var(--base-font-size);
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+      
+      .card-view .values-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      
+      .card-view .value-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .card-view .value-label {
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+      }
+    }
+    .footer {
+      text-align: center;
+      background: #f8f9fa;
+      padding: 15px;
+      font-size: 1.1rem;
+      color: #151515;
+      border-top: 2px solid #ddd;
+      position: relative;
+      bottom: 0;
+      margin-top: 50px;
+      width: 100%;
+    }
+
+    /* Адаптивни стилове за диаграмата */
+    @media (max-width: 1200px) {
+      .chart-container {
+        height: 70vh;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .chart-container {
+        height: 60vh;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .chart-container {
+        height: 50vh;
+      }
+      
+      .student-selector-container {
+        flex-direction: column;
+      }
+    }
+
+    /* Стилове за модалния прозорец */
+    .modal {
+      display: none; /* Скрит по подразбиране */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(5px);
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: rgba(0,0,0,0.8);
+      margin: 15% auto;
+      border-radius: 11px;
+      width: 5rem;
+      height: 20rem;
+      text-align: center;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+      position: relative;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20%); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .close {
+      position: absolute;
+      width: 1.7rem;
+      height: 1.7rem;
+      top: 1rem;
+      right: 1rem;
+      font-size: 1.25rem;
+      text-align: center;
+      padding: 0.5rem;
+      color: #ffffff;
+      cursor: pointer;
+      transition: color 0.2s;
+      border-radius: 50%;
+    }
+
+    .close:hover {
+      color: #951111;
+    }
+
+
+    .modal-content h2 {
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      font-size: 1.5rem;
+      color: #949494;
+    }
+
+    .admin-buttons {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .admin-buttons button {
+      margin-top: 2.5rem;
+      font-size: var(--btn-font-size);
+    }
+    #export-btn{
+      background: linear-gradient(45deg, var(--secondary), #059669);
+    }
+    #import-btn{
+      background: linear-gradient(45deg, #8b5cf6, #6366f1);
+    }
+
+
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Заглавна част и калкулатор -->
+    <div class="header">
+      <h1>Анализ на учебните резултати</h1>
+      <br>
+      <img src="https://lh3.google.com/u/0/d/1u7BnyrwW_DN_uREeiZRvcBqS7H-zLJkr=w2560-h1282-iv1" alt="" style="width: 100%; border-radius: 1rem;">
+      <br><br>
+      <h2 style="text-align: center;">Калкулатор за преобразуване на точки в проценти</h2>
+      <br>
+      <p>Въведете точките, постигнати от ученика, определете максималния брой и натиснете „Изчисли“ за преобразуване в процентна стойност.</p>
+    </div>
+    <div class="container-grade">
+      <label for="studentPoints">Точки на ученика:</label>
+      <input type="number" class="input-grade" id="studentPoints" placeholder="0">
+      <label for="maxPoints">Максимални точки:</label>
+      <input type="number" class="input-grade" id="maxPoints" placeholder="0">
+      
+      <button id="calculateButton">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 55 66" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M11.5,7.27 H52.5 A2,2 0 0 1 54.5,9.27 V54.74 A2,2 0 0 1 52.5,56.74 H11.5 A2,2 0 0 1 9.5,54.74 V9.27 A2,2 0 0 1 11.5,7.27 Z M15.75,13 H48.75 V23.92 H15.75 Z M29.7,29.47 H34.7 A1,1 0 0 1 35.7,30.47 V36.1 A1,1 0 0 1 34.7,37.1 H29.7 A1,1 0 0 1 28.7,36.1 V30.47 A1,1 0 0 1 29.7,29.47 Z M16.75,42.5 H21.75 A1,1 0 0 1 22.75,43.5 V49.13 A1,1 0 0 1 21.75,50.13 H16.75 A1,1 0 0 1 15.75,49.13 V43.5 A1,1 0 0 1 16.75,42.5 Z M29.7,42.59 H34.7 A1,1 0 0 1 35.7,43.59 V49.22 A1,1 0 0 1 34.7,50.22 H29.7 A1,1 0 0 1 28.7,49.22 V43.59 A1,1 0 0 1 29.7,42.59 Z M16.75,29.47 H21.75 A1,1 0 0 1 22.75,30.47 V36.1 A1,1 0 0 1 21.75,37.1 H16.75 A1,1 0 0 1 15.75,36.1 V30.47 A1,1 0 0 1 16.75,29.47 Z M42.75,29.47 H47.75 A1,1 0 0 1 48.75,30.47 V49.22 A1,1 0 0 1 47.75,50.22 H42.75 A1,1 0 0 1 41.75,49.22 V30.47 A1,1 0 0 1 42.75,29.47 Z"/>
+          </svg>
+        Изчислете
+      </button>
+      
+      
+      <label>Процент:</label>
+      <input type="number" class="input-grade" id="result" value="0" readonly>
+      <label>%</label>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+    <br>
+    <!-- Сравнение на индивидуалното представяне -->
+    <div class="header">
+      <h2>Сравнение на индивидуалното представяне по отделни критерии</h2>
+      <br>
+      <p>Анализирайте напредъка на ученика, като въведете процента усвоени знания по различни критерии за съответния етап на оценяване.</p>
+    </div>
+
+    <button id="importDataBtn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5 a2 2 0 0 1-2-2v-4 M7 10l5-5 5 5 M12 5v10" />   
+      </svg>
+      Импортирайте данни
+    </button>
+
+    <!-- Селектор за избор на ученик -->
+    <div class="student-selector-container">
+      <div class="student-selector">
+        <label>Име на ученик:</label>
+        <select id="studentSelector">
+          <option value="0" selected>Ученик 1</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="button-container">
+      <button id="newStudentBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M19 8v6m3-3h-6"/>
+        </svg>
+        Добавете нов ученик
+      </button>
+
+      <button id="renameStudentBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+        </svg>
+        Преименувайте ученика
+      </button>
+      
+      <button id="deleteStudentBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+        </svg>
+        Изтрийте ученика
+      </button>
+      </div>
+
+    <!-- Динамичен хедър (Grid) -->
+    <div class="grid-header" id="gridHeader"></div>
+    <!-- Контейнер за редовете -->
+    <div id="inputFields"></div>
+
+    <div class="button-container">
+      <button id="addField">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14m-7-7h14"/>
+        </svg>
+        Добавете критерий
+      </button>
+
+      <button id="drawChart">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3v18h18M18 7L15 12l3 5M8 7l3 5-3 5"/>
+        </svg>
+        Генерирайте диаграма
+      </button>
+
+      <button id="clear">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862 a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4 a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+        Изчистете данните
+      </button>
+
+    <div class="chart-container">
+      <canvas id="radarChart"></canvas>
+    </div>
+
+    <button id="exportCSV">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 26 22" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5 a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3" />   
+      </svg>
+      Експортирайте CSV данните за ученика
+    </button>
+    
+    <button id="downloadChart">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 26 22" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5 a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3" />   
+      </svg>
+      Запазете тази диаграма
+    </button>
+
+    <button id="exportAllCSV">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 26 22" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5 a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3" />   
+      </svg>
+      Експортирайте CSV данните за всички
+    </button>
+  </div>
+
+  <!-- Администраторски бутон -->
+  <button id="adminBtn" style="position: fixed; top: 10px; right: 10px;">
+    <svg xmlns="http://www.w3.org/2000/svg"  width="22" height="22" viewBox="10,15,266,256" fill="#ffffff" stroke="currentColor" stroke-width="1" ><g transform="scale(4.5,4.5)">
+        <path d="M29.05469,10c-1.339,0 -2.48298,0.9642 -2.70898,2.2832l-0.58203,3.38086c-0.306,0.117 -0.6112,0.23809 -0.9082,0.37109l-2.79687,-1.97656c-1.228,-0.849 -2.67525,-0.53827 -3.53125,0.30273l-4.16602,4.16406c-0.947,0.947 -1.07278,2.43725 -0.30078,3.53125l1.97461,2.79883c-0.134,0.297 -0.25409,0.60025 -0.37109,0.90625l-3.38086,0.58203c-1.32,0.227 -2.2832,1.37194 -2.2832,2.71094v5.89062c0,1.339 0.9642,2.48298 2.2832,2.70898l3.38086,0.58203c0.117,0.306 0.23809,0.6112 0.37109,0.9082l-1.97656,2.79688c-0.772,1.093 -0.64427,2.58425 0.30273,3.53125l4.16406,4.16602c1.084,1.06 2.59925,0.97578 3.53125,0.30078l2.79883,-1.97461c0.297,0.134 0.60025,0.25409 0.90625,0.37109l0.58203,3.38086c0.227,1.32 1.37194,2.2832 2.71094,2.2832h5.89062c1.339,0 2.48298,-0.9642 2.70898,-2.2832l0.58203,-3.38086c0.306,-0.117 0.6112,-0.23809 0.9082,-0.37109l2.79688,1.97656c0.825,0.608 2.40225,0.82727 3.53125,-0.30273l4.16602,-4.16406c0.947,-0.947 1.07278,-2.43725 0.30078,-3.53125l-1.97461,-2.79883c0.134,-0.297 0.25409,-0.60025 0.37109,-0.90625l3.38086,-0.58203c1.32,-0.227 2.2832,-1.37194 2.2832,-2.71094v-5.89062c0,-1.339 -0.9642,-2.48298 -2.2832,-2.70898l-3.38086,-0.58203c-0.117,-0.306 -0.23809,-0.6112 -0.37109,-0.9082l1.97656,-2.79687c0.772,-1.093 0.64427,-2.58425 -0.30273,-3.53125l-4.16406,-4.16602c-1.057,-1.032 -2.52225,-1.00978 -3.53125,-0.30078l-2.79883,1.97461c-0.297,-0.134 -0.60025,-0.25409 -0.90625,-0.37109l-0.58203,-3.38086c-0.227,-1.32 -1.37194,-2.2832 -2.71094,-2.2832zM30.21484,14h3.57227c0.061,0 0.11305,0.04352 0.12305,0.10352l0.77148,4.48633c1.768,0.635 3.4232,1.3043 4.9082,2.0293l3.71289,-2.62305c0.05,-0.035 0.11911,-0.02933 0.16211,0.01367l2.52539,2.52734c0.043,0.043 0.05062,0.11016 0.01563,0.16016l-2.625,3.71484c0.759,1.605 1.4433,3.23725 2.0293,4.90625l4.48633,0.77344c0.06,0.01 0.10352,0.06205 0.10352,0.12305v3.57227c0,0.061 -0.04447,0.11305 -0.10547,0.12305l-4.48437,0.77148c-0.585,1.669 -1.2613,3.3042 -2.0293,4.9082l2.625,3.71484c0.035,0.05 0.02737,0.11716 -0.01562,0.16016l-2.52539,2.52734c-0.043,0.043 -0.11211,0.04867 -0.16211,0.01367l-3.71289,-2.62305c-1.64,0.771 -3.2762,1.4463 -4.9082,2.0293l-0.77344,4.48438c-0.01,0.06 -0.06205,0.10352 -0.12305,0.10352h-3.57227c-0.061,0 -0.11305,-0.04447 -0.12305,-0.10547l-0.77148,-4.48437c-1.609,-0.559 -3.2432,-1.2253 -4.9082,-2.0293l-3.71484,2.625c-0.05,0.035 -0.11716,0.02737 -0.16016,-0.01562l-2.52734,-2.52539c-0.043,-0.043 -0.04867,-0.11211 -0.01367,-0.16211l2.62305,-3.71289c-0.779,-1.665 -1.4553,-3.3012 -2.0293,-4.9082l-4.48437,-0.77344c-0.06,-0.01 -0.10352,-0.06205 -0.10352,-0.12305v-3.57227c0,-0.061 0.04352,-0.11205 0.10352,-0.12305l4.48633,-0.77344c0.581,-1.636 1.2473,-3.27125 2.0293,-4.90625l-2.625,-3.71484c-0.035,-0.05 -0.02737,-0.11716 0.01563,-0.16016l2.52539,-2.52734c0.043,-0.043 0.11211,-0.04867 0.16211,-0.01367l3.71289,2.62305c1.548,-0.743 3.1892,-1.4153 4.9082,-2.0293l0.77344,-4.48437c0.01,-0.06 0.06205,-0.10352 0.12305,-0.10352zM32,23c-4.971,0 -9,4.029 -9,9c0,4.971 4.029,9 9,9c4.971,0 9,-4.029 9,-9c0,-4.971 -4.029,-9 -9,-9zM32,27c2.761,0 5,2.239 5,5c0,2.761 -2.239,5 -5,5c-2.761,0 -5,-2.239 -5,-5c0,-2.761 2.239,-5 5,-5z"></path></g></g>
+      </svg>
+  </button>
+
+  <!-- Модален прозорец -->
+  <div id="adminModal" class="modal">
+    <div class="modal-content">
+      <button id="closeModal" class="close">&times;</button>
+      <h2>Административни настройки</h2>
+      <div class="admin-buttons">
+        <button id="export-btn" onclick="exportJSON()">Експортиране на JSON</button>
+        <button id="import-btn"onclick="importJSON()">Импортиране на JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Изработено от <strong>инж. Димитър Желев</strong>,  
+       учител по Информатика и Информационни технологии в  
+       <strong>СУ "Йордан Йовков" - Сливен</strong>.
+    </p>
+  </footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<script>
+  // === 1) Калкулатор за проценти ===
+  function calculateGrade() {
+    const studentPoints = parseFloat(document.getElementById('studentPoints').value);
+    const maxPoints = parseFloat(document.getElementById('maxPoints').value);
+    const resultElement = document.getElementById('result');
+    const progressBar = document.getElementById('progressBar');
+    
+    if(isNaN(studentPoints) || isNaN(maxPoints) || maxPoints <= 0) {
+      resultElement.value = "0";
+      progressBar.style.width = '0%';
+      return;
+    }
+    
+    if(studentPoints > maxPoints) {
+      alert(`Точки на ученика (${studentPoints}) не може да са повече от максималните точки (${maxPoints})!`);
+      return;
+    }
+    
+    const grade = 100 * (studentPoints / maxPoints);
+    resultElement.value = grade.toFixed(0);
+    progressBar.style.width = `${grade}%`;
+  }
+  document.getElementById('calculateButton').addEventListener('click', calculateGrade);
+
+  // === 2) Данни за колони и редове (динамични) ===
+  let columns = ["Входно ниво", "Междинно ниво", "Изходно ниво"]; // Макс 5, мин 1
+  let rowsData = [
+    { label: "Четене с разбиране", values: [46, 58, 67] },
+    { label: "Работа върху изречение",   values: [72, 75, 78] },
+    { label: "Редактиране на текст",   values: [68, 64, 51] },
+    { label: "Литературни знания",   values: [73, 68, 77] },
+    { label: "Творчество и езикова култура", values: [62, 58, 65] }
+  ];
+
+  let students = [
+    {
+      name: "Ученик 1",
+      columns: columns,
+      rowsData: rowsData
+    }
+  ];
+  let currentStudentIndex = 0;
+
+  // === 3) Актуализиране на CSS променливата --numCols ===
+  function updateNumColsCSS() {
+    document.documentElement.style.setProperty('--numCols', columns.length);
+  }
+
+  // === 4) Рендериране на заглавния ред (header) ===
+  function renderHeader() {
+    updateNumColsCSS();
+    const header = document.getElementById('gridHeader');
+    header.innerHTML = "";
+    
+    header.style.gridTemplateColumns = `1.8fr repeat(${columns.length}, 1fr) 5rem`;
+
+    // 1) Първа клетка: "Критерии", подравнено вляво
+    const criteriaSpan = document.createElement('span');
+    criteriaSpan.className = "left-align";
+    criteriaSpan.textContent = "Критерии";
+    header.appendChild(criteriaSpan);
+
+    // 2) Колони
+    columns.forEach((colName, colIndex) => {
+      const span = document.createElement('span');
+      span.style.textAlign = "center";
+
+      const colInput = document.createElement('input');
+      colInput.type = "text";
+      colInput.value = colName;
+      colInput.addEventListener('input', (e) => {
+        columns[colIndex] = e.target.value;
+        students[currentStudentIndex].columns = [...columns];
+        debouncedSaveAll();
+
+      });
+      span.appendChild(colInput);
+      header.appendChild(span);
+    });
+
+    // 3) Последна клетка: бутони "+" и "-" (вертикално)
+    const buttonsSpan = document.createElement('span');
+    buttonsSpan.className = "column-buttons";
+
+    const plusBtn = document.createElement('button');
+    plusBtn.className = "add-column-btn";
+    plusBtn.textContent = "+";
+    plusBtn.title = "Добавете колона";
+    plusBtn.addEventListener('click', addColumn);
+    buttonsSpan.appendChild(plusBtn);
+
+    const minusBtn = document.createElement('button');
+    minusBtn.className = "remove-column-btn";
+    minusBtn.textContent = "-";
+    minusBtn.title = "Премахнете последната колона";
+    minusBtn.addEventListener('click', removeColumn);
+    buttonsSpan.appendChild(minusBtn);
+
+    header.appendChild(buttonsSpan);
+
+    if(columns.length >= 5) {
+      plusBtn.disabled = true;
+    } else {
+      plusBtn.disabled = false;
+    }
+
+    if(columns.length <= 1) {
+      minusBtn.disabled = true;
+    } else {
+      minusBtn.disabled = false;
+    }
+
+  }
+
+  // === 5) Рендериране на редовете ===
+  function renderRows() {
+    const container = document.getElementById('inputFields');
+    container.innerHTML = "";
+
+    rowsData.forEach((rowObj, rowIndex) => {
+      const group = document.createElement('div');
+      group.className = "input-group";
+      group.style.gridTemplateColumns = `1.8fr repeat(${columns.length}, 1fr) 5rem`;
+
+      const labelInput = document.createElement('input');
+      labelInput.type = "text";
+      labelInput.className = "labelInput";
+      labelInput.value = rowObj.label;
+      labelInput.addEventListener('input', (e) => {
+        rowObj.label = e.target.value;
+      });
+      group.appendChild(labelInput);
+
+      columns.forEach((_, colIndex) => {
+        const valInput = document.createElement('input');
+        valInput.type = "number";
+        valInput.className = "valueInput";
+        valInput.min = "0";
+        valInput.max = "100";
+        valInput.value = rowObj.values[colIndex] ?? 0;
+        valInput.addEventListener('input', (e) => {
+          let v = parseFloat(e.target.value);
+          if(isNaN(v) || v < 0 || v > 100) {
+            valInput.style.borderColor = "red";
+          } else {
+            valInput.style.borderColor = "";
+            rowObj.values[colIndex] = v;
+          }
+        });
+        group.appendChild(valInput);
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = "delete-btn";
+      deleteBtn.title = "Изтрий ред";
+      deleteBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862
+                   a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4
+                   a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      `;
+      deleteBtn.addEventListener('click', () => {
+        rowsData.splice(rowIndex, 1);
+        renderRows();
+      });
+      group.appendChild(deleteBtn);
+
+      container.appendChild(group);
+    });
+  }
+
+  // === 6) Добавяне на колона (макс 5) ===
+  function addColumn() {
+    if(columns.length >= 5) return;
+    
+    const columnNames = {
+      1: "Междинно ниво",
+      2: "Междинно ниво 2",
+      3: "Изходно ниво",
+      4: "НВО"
+    };
+    
+    if(columns.length === 3) {
+      columns[2] = "Междинно ниво 2";
+      columns.push("Изходно ниво");
+      rowsData.forEach(row => {
+        row.values.push(row.values[2] ?? 0);
+        row.values[2] = 0;
+      });
+    } else {
+      columns.push(columnNames[columns.length] || "Нова колона");
+      rowsData.forEach(r => r.values.push(0));
+    }
+    
+    renderHeader();
+    renderRows();
+  }
+
+  // === 7) Премахване на последната колона (мин 1) ===
+  function removeColumn() {
+    if(columns.length <= 1) return;
+    columns.pop();
+    rowsData.forEach(r => r.values.pop());
+    renderHeader();
+    renderRows();
+  }
+
+  // === 8) Добавяне на нов ред (критерий) ===
+  function addRow() {
+    let newRow = {
+      label: "Нов критерий",
+      values: columns.map(() => 0)
+    };
+    rowsData.push(newRow);
+    renderRows();
+  }
+// === 9) Изчиства всички input елементи с клас valueInput ===
+  document.getElementById("clear").addEventListener("click", () => {
+    // Изчистване на input полетата
+    const inputs = document.querySelectorAll(".valueInput");
+    inputs.forEach(input => {
+      input.value = "0";
+    });
+
+    // Актуализиране на вътрешната структура
+    rowsData.forEach(row => {
+      row.values = row.values.map(() => 0);
+    });
+
+    // Синхронизирайте students[currentStudentIndex]
+    students[currentStudentIndex].rowsData = JSON.parse(JSON.stringify(rowsData));
+
+    // (По избор) Пререндерирайте редовете, за да се отрази визуално
+    renderRows();
+
+    // Извикайте записването в localStorage
+    saveAllStudentsToLocalStorage();
+  });
+
+
+  // === 10) Генериране на диаграмата ===
+  let chartInstance = null;
+  function drawChart() {
+    const labels = rowsData.map(r => r.label);
+    const datasets = columns.map((colName, colIndex) => {
+      const columnValues = rowsData.map(r => {
+        const val = r.values[colIndex];
+        return (typeof val === 'number' && !isNaN(val) && val >= 0 && val <= 100) ? val : 0;
+      });
+      
+      const colorList = [
+        "#6366f1","#10b981","#ff0901","#eab308","#db07d1",
+        "#8b5cf6","#f97316","#ec4899","#14b8a6","#a16207"
+      ];
+      
+      return {
+        label: colName,
+        data: columnValues,
+        backgroundColor: hexToRGBA(colorList[colIndex % colorList.length], 0.05),
+        borderColor: colorList[colIndex % colorList.length],
+        pointBackgroundColor: colorList[colIndex % colorList.length]
+      };
+    });
+
+    if(datasets.length === 0) {
+      alert("Няма валидни данни за визуализация!");
+      return;
+    }
+
+    if(chartInstance) chartInstance.destroy();
+
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    chartInstance = new Chart(ctx, {
+      type: 'radar',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            beginAtZero: false,
+            min: 0,
+            max: 100,
+            grid: { color: '#d7d7d7' },
+            pointLabels: { 
+              color: '#505050',
+              font: { size: 20},
+              padding: 5
+            },
+            ticks: { 
+              color: '#505050',
+              backdropColor: 'transparent',
+              callback: value => value >= 0 ? value : ''
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { 
+              font: { size: 22 },
+              color: '#000' 
+            }
+          }
+        }
+      }
+    });
+
+    document.querySelector('.chart-container').style.display = 'block';
+    document.getElementById('exportCSV').style.display = 'inline-block';
+    document.getElementById('exportAllCSV').style.display = 'inline-block';
+    document.getElementById('downloadChart').style.display = 'inline-block';
+  }
+
+  // Помощна функция RGBA
+  function hexToRGBA(hex, alpha) {
+    let c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+      c = hex.substring(1).split('');
+      if(c.length === 3) {
+        c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+      }
+      let r = parseInt(c[0] + c[1], 16);
+      let g = parseInt(c[2] + c[3], 16);
+      let b = parseInt(c[4] + c[5], 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    return `rgba(0,0,0,${alpha})`;
+  }
+
+  // === 11) Зареждане ===
+  document.addEventListener('DOMContentLoaded', function() {
+    loadAllStudentsFromLocalStorage();
+    renderHeader();
+    renderRows();
+    
+    updateStudentSelector();
+    
+    document.getElementById('addField').addEventListener('click', addRow);
+    document.getElementById('drawChart').addEventListener('click', drawChart);
+    document.getElementById('newStudentBtn').addEventListener('click', addNewStudent);
+    document.getElementById('renameStudentBtn').addEventListener('click', renameCurrentStudent);
+    document.getElementById('deleteStudentBtn').addEventListener('click', deleteCurrentStudent);
+    document.getElementById('importDataBtn').addEventListener('click', importData);
+    document.getElementById('exportCSV').addEventListener('click', exportToCSV);
+    document.getElementById('exportAllCSV').addEventListener('click', exportAllToCSV);
+    document.getElementById('studentSelector').addEventListener('change', function(e) {
+      switchStudent(parseInt(e.target.value));
+    });
+    
+    attachSaveEvents();
+  });
+
+  // === 12) Запис на диаграмата като PNG ===
+// Обработчик за сваляне на изображението (с добавен бел фон)
+  document.getElementById('downloadChart').addEventListener('click', async function() {
+  const originalCanvas = document.getElementById('radarChart');
+  const width = originalCanvas.width;
+  const height = originalCanvas.height;
+  
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = width;
+  tempCanvas.height = height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // Бял фон
+  tempCtx.fillStyle = '#ffffff';
+  tempCtx.fillRect(0, 0, width, height);
+  
+  // Оригиналния canvas
+  tempCtx.drawImage(originalCanvas, 0, 0);
+  
+  const blob = await new Promise(resolve => tempCanvas.toBlob(resolve, 'image/png'));
+  
+  // Използване на File System Access API
+  try {
+    const options = {
+      types: [{
+        description: 'PNG изображение',
+        accept: {'image/png': ['.png']},
+      }],
+      suggestedName: 'radar-chart.png'
+    };
+    
+    const handle = await window.showSaveFilePicker(options);
+    const writableStream = await handle.createWritable();
+    await writableStream.write(blob);
+    await writableStream.close();
+    console.log('Изображението е записано успешно.');
+  } catch (err) {
+    console.error('Потребителят отменя запазването или възникна грешка:', err);
+  }
+});
+
+  // === 13) Създаваме CSV съдържанието ===
+
+function exportToCSV() {
+  // Първата колона е "Критерии", след това имената на колоните
+  let csvContent = "Критерии," + columns.join(",") + "\n";
+  
+  // За всеки ред добавяме ред с първо името (label) и после стойностите (values)
+  rowsData.forEach(row => {
+    // Съчетаваме label и стойностите в един ред
+    let rowArray = [row.label, ...row.values];
+    csvContent += rowArray.join(",") + "\n";
+  });
+  
+  // Добавяме UTF-8 BOM маркер за правилно разпознаване на кирилицата
+  const BOM = "\uFEFF";
+  csvContent = BOM + csvContent;
+  
+  // Създаваме Blob от CSV съдържанието с UTF-8 кодиране
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  
+  // Създаваме временен <a> елемент, който ще стартира изтеглянето
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "данни_" + students[currentStudentIndex].name + ".csv");
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  // Освобождаваме URL обекта
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 1000);
+
+  console.log('Записване на students:', students);
+}
+
+// Кеширайте често използвани DOM елементи
+const studentPointsEl = document.getElementById('studentPoints');
+const maxPointsEl = document.getElementById('maxPoints');
+const resultEl = document.getElementById('result');
+const progressBarEl = document.getElementById('progressBar');
+
+// Дефинираме функцията debounce (отлагане на изпълнение)
+function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// Дебоунсирана версия на saveAllStudentsToLocalStorage (ще се извиква 500мс след последната промяна)
+const debouncedSaveAll = debounce(saveAllStudentsToLocalStorage, 500);
+
+// Прикачваме един обработчик на събитието 'input' върху родителския контейнер (или дори върху document.body)
+document.body.addEventListener('input', function(e) {
+  if (e.target.matches('.valueInput')) {
+    const input = e.target;
+    // Намерете контейнера на реда, в който се намира input-а
+    const groupDiv = input.closest('.input-group');
+    if (!groupDiv) return;
+
+    // Определете редовете като всички .input-group в контейнера с id="inputFields"
+    const groups = Array.from(document.querySelectorAll('#inputFields .input-group'));
+    const rowIndex = groups.indexOf(groupDiv);
+
+    // Намерете всички input-и в този ред и определете позицията на текущия input
+    const inputsInGroup = Array.from(groupDiv.querySelectorAll('.valueInput'));
+    const colIndex = inputsInGroup.indexOf(input);
+
+    if (rowIndex !== -1 && colIndex !== -1) {
+      // Обновете стойността в students за активния ученик
+      students[currentStudentIndex].rowsData[rowIndex].values[colIndex] = parseFloat(input.value) || 0;
+    }
+  } else if (e.target.matches('.labelInput')) {
+    const input = e.target;
+    const groupDiv = input.closest('.input-group');
+    if (!groupDiv) return;
+    const groups = Array.from(document.querySelectorAll('#inputFields .input-group'));
+    const rowIndex = groups.indexOf(groupDiv);
+    if (rowIndex !== -1) {
+      students[currentStudentIndex].rowsData[rowIndex].label = input.value;
+    }
+  }
+
+  // Извикване на дебоунсираното записване
+  if (e.target.matches('.valueInput, .labelInput, #studentPoints, #maxPoints')) {
+    debouncedSaveAll();
+  }
+});
+
+// Зареждане на учениците от localStorage
+function loadAllStudentsFromLocalStorage() {
+  const savedStudents = localStorage.getItem('ChartStudents');
+  const savedIndex = localStorage.getItem('ChartCurrentStudentIndex');
+  
+  if (savedStudents) {
+    try {
+      students = JSON.parse(savedStudents);
+      currentStudentIndex = savedIndex ? parseInt(savedIndex) : 0;
+      
+      // Зареждаме данните на активния ученик
+      columns = [...students[currentStudentIndex].columns];
+      rowsData = JSON.parse(JSON.stringify(students[currentStudentIndex].rowsData));
+    } catch (error) {
+      console.error('Грешка при зареждане на данните за учениците', error);
+    }
+  }
+}
+
+// Функция за запазване на всички ученици в localStorage
+function saveAllStudentsToLocalStorage() {
+  students[currentStudentIndex].columns = [...columns];
+
+  localStorage.setItem('ChartStudents', JSON.stringify(students));
+  localStorage.setItem('ChartCurrentStudentIndex', currentStudentIndex);
+  localStorage.setItem('ChartColumns', JSON.stringify(columns));
+
+  console.log('Записване на students:', students);
+  console.log('Записване на columns:', columns);
+
+}
+
+// Функция за превключване между учениците
+function switchStudent(index) {
+  // Запазваме текущите данни
+  students[currentStudentIndex].columns = [...columns];
+  students[currentStudentIndex].rowsData = JSON.parse(JSON.stringify(rowsData));
+  
+  // Зареждаме данните на избрания ученик
+  currentStudentIndex = index;
+  columns = [...students[index].columns];
+  rowsData = JSON.parse(JSON.stringify(students[index].rowsData));
+  
+  // Актуализираме селектора
+  const selector = document.getElementById('studentSelector');
+  if (selector) {
+    selector.value = index;
+  }
+  
+  // Обновяваме интерфейса
+  renderHeader();
+  renderRows();
+  
+  // Ако има активна диаграма, я актуализираме
+  if (chartInstance) {
+    drawChart();
+  }
+  
+  // Запазваме в localStorage
+  saveAllStudentsToLocalStorage();
+}
+
+function addNewStudent() {
+  // Първо запазваме текущите данни на активния ученик
+  students[currentStudentIndex].columns = [...columns];
+  students[currentStudentIndex].rowsData = JSON.parse(JSON.stringify(rowsData));
+  
+  // Създаваме нов ученик със същите колони но празни данни
+  const newStudentIndex = students.length;
+  const newStudentName = `Ученик ${newStudentIndex + 1}`;
+  
+  // Създаваме празни редове със същите критерии
+  const newRowsData = rowsData.map(row => ({
+    label: row.label,
+    values: Array(columns.length).fill(0)
+  }));
+  
+  // Добавяме новия ученик към масива
+  students.push({
+    name: newStudentName,
+    columns: [...columns],
+    rowsData: newRowsData
+  });
+
+  const newName = prompt('Въведете ново име за ученика:', students[currentStudentIndex].name);
+  if (newName && newName.trim() !== '') {
+    students[currentStudentIndex+1].name = newName.trim();
+    updateStudentSelector();
+    saveAllStudentsToLocalStorage();
+  }
+
+  // Превключваме към новия ученик
+  switchStudent(newStudentIndex);
+  
+  // Актуализираме селектора
+  updateStudentSelector();
+  
+  // Запазваме в localStorage
+  saveAllStudentsToLocalStorage();
+}
+
+function updateStudentSelector() {
+  const selector = document.getElementById('studentSelector');
+  if (!selector) return;
+  
+  // Изчистваме съществуващите опции
+  selector.innerHTML = '';
+  
+  // Добавяме нови опции
+  students.forEach((student, index) => {
+    const option = document.createElement('option');
+    option.value = index;
+    option.textContent = student.name;
+    if (index === currentStudentIndex) {
+      option.selected = true;
+    }
+    selector.appendChild(option);
+  });
+}
+
+function renameCurrentStudent() {
+  const newName = prompt('Въведете ново име за ученика:', students[currentStudentIndex].name);
+  if (newName && newName.trim() !== '') {
+    students[currentStudentIndex].name = newName.trim();
+    updateStudentSelector();
+    saveAllStudentsToLocalStorage();
+  }
+}
+
+function deleteCurrentStudent() {
+  // Проверяваме дали имаме повече от един ученик
+  if (students.length <= 1) {
+    alert('Не можете да изтриете последния ученик!');
+    return;
+  }
+  
+  // Потвърждение от потребителя
+  const confirmDelete = confirm(`Наистина ли искате да изтриете ученик "${students[currentStudentIndex].name}"? Това действие не може да бъде отменено.`);
+  
+  if (!confirmDelete) {
+    return; // Потребителят е отменил действието
+  }
+  
+  // Изтриваме ученика от масива
+  students.splice(currentStudentIndex, 1);
+  
+  // Преминаваме към предишния ученик или към първия ако сме изтрили първия
+  let newIndex = currentStudentIndex - 1;
+  if (newIndex < 0 || newIndex >= students.length) {
+    newIndex = 0;
+  }
+  
+  // Превключваме към новия ученик
+  currentStudentIndex = newIndex;
+  columns = [...students[newIndex].columns];
+  rowsData = JSON.parse(JSON.stringify(students[newIndex].rowsData));
+  
+  // Обновяваме интерфейса
+  updateStudentSelector();
+  renderHeader();
+  renderRows();
+  
+  // Ако има активна диаграма, я актуализираме
+  if (chartInstance) {
+    drawChart();
+  }
+  
+  // Запазваме в localStorage
+  saveAllStudentsToLocalStorage();
+}
+
+function exportAllToCSV() {
+  students.forEach((student, index) => {
+    let csvContent = "Критерии," + columns.join(",") + "\n";
+    
+    student.rowsData.forEach(row => {
+      let rowArray = [row.label, ...row.values];
+      csvContent += rowArray.join(",") + "\n";
+    });
+    
+    const BOM = "\uFEFF";
+    csvContent = BOM + csvContent;
+    
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `данни_${student.name}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Освобождаваме URL обекта
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 1000);
+  });
+}
+
+function importData() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv, .xlsx, .xls';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+    
+    fileInput.addEventListener('change', function(e) {
+        if (!e.target.files.length) return;
+        
+        const file = e.target.files[0];
+        const fileType = file.type; // Получаваме типа на файла
+        const reader = new FileReader();
+        
+        reader.onload = function(event) {
+            if (fileType === 'text/csv') {
+                // Обработка на CSV
+                const csvContent = event.target.result;
+                processCSV(csvContent);
+            } else if (fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+                       fileType === 'application/vnd.ms-excel') {
+                // Обработка на XLSX и XLS
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                processXLSX(jsonData);
+            } else {
+                alert('Неподдържан формат на файла!');
+            }
+        };
+        
+        if (fileType === 'text/csv') {
+            reader.readAsText(file);
+        } else if (fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+                   fileType === 'application/vnd.ms-excel') {
+            reader.readAsArrayBuffer(file);
+        }
+    });
+    
+    fileInput.click();
+    setTimeout(() => {
+        document.body.removeChild(fileInput);
+    }, 5000);
+}
+
+function processCSV(csvContent) {
+    // Разделяме съдържанието на редове
+    const rows = csvContent.split('\n').filter(row => row.trim());
+    
+    // Проверка дали има редове
+    if (rows.length === 0) {
+        alert('Файлът не съдържа данни!');
+        return;
+    }
+
+    // Първият ред е заглавията (колоните), без "Критерии"
+    const newColumns = rows[0].split(',').map(col => col.trim()).slice(1); // Премахваме първата колона
+
+      // Проверка дали броят на колоните е по-голям от допустимия (например 5)
+      if(newColumns.length > 5) {
+      alert('Не е позволено качването на файлове с повече от 5 колони!');
+      return;
+      }
+    
+    // Обработваме останалите редове
+    const newRowsData = rows.slice(1).map(row => {
+        const values = row.split(',').map(val => {
+            const trimmedVal = val.trim();
+            return isNaN(trimmedVal) ? trimmedVal : parseFloat(trimmedVal); // Проверка за текст
+        });
+        return { label: values[0], values: values.slice(1) }; // Уверете се, че label е правилно зададен
+    });
+
+    // Актуализирайте данните в приложението
+    columns = newColumns;
+    rowsData = newRowsData;
+
+    // Синхронизирайте students[currentStudentIndex]
+    students[currentStudentIndex].columns = columns;
+    students[currentStudentIndex].rowsData = rowsData;
+
+    // Обновете интерфейса
+    renderHeader();
+    renderRows();
+    alert('Данните от CSV са импортирани успешно!');
+    
+    // Запазване на импортираните данни в localStorage
+    saveAllStudentsToLocalStorage();
+    // Зареждане на импортираните данни в localStorage
+    loadAllStudentsFromLocalStorage();
+}
+
+function processXLSX(jsonData) {
+    // Вашият код за обработка на XLSX
+    const newColumns = jsonData[0].slice(1); // Първият ред е заглавията
+
+    // Проверка дали броят на колоните е по-голям от допустимия (например 5)
+    if(newColumns.length > 5) {
+      alert('Не е позволено качването на файлове с повече от 5 колони!');
+      return;
+    }
+
+    // Обработваме останалите редове
+    const newRowsData = jsonData.slice(1).map(row => ({
+        label: row[0],
+        values: row.slice(1).map(val => (typeof val === 'number' ? val : 0))
+    }));
+
+    // Актуализира данните в приложението
+    columns = newColumns;
+    rowsData = newRowsData;
+
+    // Синхронизира students[currentStudentIndex]
+    students[currentStudentIndex].columns = columns;
+    students[currentStudentIndex].rowsData = rowsData;
+
+    // Обновете интерфейса
+    renderHeader();
+    renderRows();
+    alert('Данните от XLSX/XLS са импортирани успешно!');
+  
+    // Запазване на импортираните данни в localStorage
+    saveAllStudentsToLocalStorage();
+}
+
+// Отваряне и затваряне на модалния прозорец
+const adminBtn = document.getElementById('adminBtn');
+const adminModal = document.getElementById('adminModal');
+const closeModal = document.getElementById('closeModal');
+
+adminBtn.addEventListener('click', () => {
+  // Тук може да добавите проверка за административен достъп
+  adminModal.style.display = 'block';
+});
+
+closeModal.addEventListener('click', () => {
+  adminModal.style.display = 'none';
+});
+
+// Затваряне, ако се кликне извън модалното съдържание
+window.addEventListener('click', (event) => {
+  if (event.target === adminModal) {
+    adminModal.style.display = 'none';
+  }
+});
+
+// Функция за експортиране на JSON
+function exportJSON() {
+  const jsonData = JSON.stringify(students, null, 2); // Форматирано JSON
+  const blob = new Blob([jsonData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'students.json';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  URL.revokeObjectURL(url);
+}
+
+// Функция за импортиране на JSON
+function importJSON() {
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.json';
+  fileInput.style.display = 'none';
+  document.body.appendChild(fileInput);
+  
+  fileInput.addEventListener('change', function(e) {
+    if (!e.target.files.length) return;
+    
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = function(event) {
+      try {
+        const data = JSON.parse(event.target.result);
+        students = data; // Актуализирайте students с новите данни
+        saveAllStudentsToLocalStorage(); // Запазете в localStorage
+        alert('Данните от JSON са импортирани успешно!');
+      } catch (error) {
+        alert('Грешка при импортиране на JSON: ' + error.message);
+      }
+    };
+    
+    reader.readAsText(file);
+  });
+  
+  fileInput.click();
+  setTimeout(() => {
+    document.body.removeChild(fileInput);
+  }, 5000);
+}
+</script>
+</body>
+</html>
